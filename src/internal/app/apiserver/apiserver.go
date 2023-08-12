@@ -65,6 +65,9 @@ func (s *APIServer) configureStore() error {
 func (s *APIServer) HandleTest() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "TEST")
+		_, err := io.WriteString(w, "TEST")
+		if err != nil {
+			return
+		}
 	}
 }
