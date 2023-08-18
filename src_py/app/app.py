@@ -1,72 +1,48 @@
+import sys
+import os
+import re
+import magic
 from flask import Flask, request, redirect, url_for
-# jsonify, abort, make_response, request, send_file)
 
-# import requests
-# import json
-# import time
-# import sys
-# import pandas as pd
-
-# import dp_utils.pic_utils as pic
-# import dp_utils.audio_utils as audio
 import dp_utils.data_utils as data_utils
-import dp_utils.model_utils as model
-# import dp_utils.np_utils as np
-# import dp_utils.predict_utils as predict
-# import dp_utils.video_utils as video
+from dp_utils.model_utils import read_model, active_learning
 
 
 app = Flask(__name__)
 
 
-# @app.route('/upload', methods=['GET', 'POST'])
-# def upload_file():
-#     '''
-#         Receive a file or array with keyword: 'data'
-#     '''
-#     if request.method == 'POST':
-#         file = request.files.get('file')
-#         if file:
-#             mimetype = file.content_type
-#             print(f'mime:{mimetype}')
-#             # filename = werkzeug.secure_filename(file.filename)
-#             # file.save(os.path.join(UPLOAD_FOLDER, filename))
-#
-#             return redirect(url_for('/upload'))
-#         else:
-#             data = request.args.get('data')
-#             print(f'get data:{data}')
-#             return redirect(url_for('/upload'))
-
-
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
-    # Если запрос - GET, то вернуть приветственное сообщение
+    '''
+        Receive a file or array with keyword: 'data'
+    '''
+    # Get array with GET method
     if request.method == "GET":
-        data = request.args.get('data')
+        data = request.args.getlist('data')
         print(f'get data:{data}')
-        return redirect(url_for('/predict'))
-
-    # Если запрос - POST, то обработать файл с данными
-    if request.method == "POST":
+    # Get file with POST method
+    elif request.method == "POST":
         file = request.files.get('file')
         if file:
-            mimetype = file.content_type
-            print(f'mime:{mimetype}')
-            # filename = werkzeug.secure_filename(file.filename)
-            # file.save(os.path.join(UPLOAD_FOLDER, filename))
-            return redirect(url_for('/upload'))
-        # Получить файл из запроса
+            filename = data_utils.secure_filename(file.filename)
+            file.save(os.path.join('files/', filename))
+            data = filename
 
-        # Отправить файл на вход скрипту-обработчику
-        data = data_utils.process_file(file)
+    data = data_utils.process_file(data)
 
-        # Сделать предсказание с помощью модели
-        res = model.predict(data)
+    # res = model.predict(data) # uncomment when use real model
+    res = 'result'
 
-        # Вернуть результат в виде JSON
-        return res.to_json()
+    if config['active_learning']:
+        active_learning(model, data)
+
+    return f'result:{res}\nconfig:{config}, type: {type(config)}\n type of model: {type(model)}\nrequest.args:{request.args}'
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080)
+    model, config = read_model()
+    app.run(host='127.0.0.1', port=8080)
+    '''
+        run "tests/test_receive.py" when app.py is working to test file sharing
+        result: miyagi.mp3 and testfile.txt in "files/"
+    '''

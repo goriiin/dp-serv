@@ -11,7 +11,8 @@ def _choose_current_file(paths: list, ch_files: list):
     result = []
     for i in range(len(paths)):
         ch_file = ch_files[i]
-        path = paths[i]
+        path = os.path.abspath(paths[i])
+        print(path)
         if ch_file is None:
             names = []
             for root, dirs, files in os.walk(path):
@@ -32,17 +33,23 @@ def _load_model(model):
 
 def read_model(cur_conf=None, cur_model=None):
     """
+        !! USE ONLY FROM app.py !!
         cur_conf: None or filename of selected config
         cur_model: None or filename of selected model.
     """
-    PATH_TO_CONFIGS = '../config'
-    PATH_TO_MODELS = '../models'
+    PATH_TO_CONFIGS = 'config/'
+    PATH_TO_MODELS = 'models/'
 
     config_path, model_path = _choose_current_file([PATH_TO_CONFIGS, PATH_TO_MODELS],
                                                    [cur_conf, cur_model])
     model = _load_model(model_path)
     config = ya.load_config(config_path)
+    print('model and config loaded')
     return [model, config]
+
+
+def active_learning():
+    pass
 
 
 def predict():
