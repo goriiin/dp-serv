@@ -5,6 +5,9 @@ def load_config(config):
     return yaml.safe_load(open(config))
 
 
+
+
+
 if __name__ == '__main__':
     to_yaml = {
         'path': ['switchport mode access',
