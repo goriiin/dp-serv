@@ -31,6 +31,7 @@ def upload_file():
             print(f'mime:{mimetype}')
             # filename = werkzeug.secure_filename(file.filename)
             # file.save(os.path.join(UPLOAD_FOLDER, filename))
+
             return redirect(url_for('/upload'))
         else:
             data = request.args.get('data')
